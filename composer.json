@@ -1,0 +1,36 @@
+{
+    "name": "alexandrfiner/app-store-library-php",
+    "description": "A library that implements the App Store API (Server API and Connect API) and facilitates App Store Server Notifications V2",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+      {
+        "name": "Alexandr Morohin",
+        "email": "finersanya@gmail.com"
+      }
+    ],
+    "keywords": [
+      "appstore",
+      "connectapi",
+      "serverapi",
+      "server notifications",
+      "iap",
+      "itunes"
+    ],
+    "homepage": "https://github.com/AlexandrFiner/app-store-library-php",
+    "php": ">=8.0",
+    "require": {
+        "firebase/php-jwt": "^6.10",
+        "guzzlehttp/psr7": "^2.6",
+        "guzzlehttp/uri-template": "^1.0",
+        "guzzlehttp/promises": "^2.0",
+        "guzzlehttp/guzzle": "^7.8",
+        "nesbot/carbon": "^2.72"
+    },
+    "autoload": {
+        "psr-4": {
+            "AppStoreLibrary\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
