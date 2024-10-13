@@ -2,18 +2,18 @@
 
 ## [App Store Server API](https://developer.apple.com/documentation/appstoreserverapi) ![35%](https://progress-bar.xyz/35)
 
-- [x] [Get Transaction History](#get-transaction-history)
+- [x] [Get Transaction History](docs/appstoreserverapi/get-notification-history.md)
 - [ ] Get Transaction History V1 `deprecated`
-- [x] [Get Transaction Info](#get-transaction-info)
-- [x] [Get All Subscription Statuses](#get-all-subscription-statuses)
-- [x] [Send Consumption Information](#send-consumption-information)
+- [x] [Get Transaction Info](docs/appstoreserverapi/get-transaction-info.md)
+- [x] [Get All Subscription Statuses](docs/appstoreserverapi/get-all-subscription-statuses.md)
+- [x] [Send Consumption Information](docs/appstoreserverapi/send-consumption-information.md)
 - [ ] Look Up Order ID
 - [ ] Get Refund History
 - [ ] Get Refund History V1 `deprecated`
 - [ ] Extend a Subscription Renewal Date
 - [ ] Extend Subscription Renewal Dates for All Active Subscribers
 - [ ] Get Status of Subscription Renewal Date Extensions
-- [x] [Get Notification History](#get-notification-history)
+- [x] [Get Notification History](docs/appstoreserverapi/get-notification-history.md)
 - [ ] Request a Test Notification
 - [ ] Get Test Notification Status
 
