@@ -192,7 +192,7 @@ class Sender
             method: 'PUT',
             uri: "/v1/transactions/consumption/$transactionId",
             options: [
-                RequestOptions::QUERY => $consumptionRequest->toResponse(),
+                RequestOptions::JSON => $consumptionRequest->toResponse(),
             ],
         );
     }
