@@ -3,7 +3,6 @@
 namespace AppStoreLibrary;
 
 use AppStoreLibrary\Clients\Client;
-use AppStoreLibrary\Clients\RealClient;
 use AppStoreLibrary\Enums\AppStoreApi;
 use AppStoreLibrary\Enums\ServerNotifications\Environment;
 use AppStoreLibrary\Exceptions\AppStoreServerApiException;
@@ -15,7 +14,8 @@ use AppStoreLibrary\Responses\ConnectApi\SubscriptionsByGroupResponse;
 use AppStoreLibrary\Responses\ServerApi\NotificationHistoryResponse;
 use AppStoreLibrary\Responses\ServerApi\StatusResponse;
 use AppStoreLibrary\Responses\ServerApi\TransactionInfoResponse;
-use GuzzleHttp\Exception\GuzzleException;
+use Carbon\Carbon;
+use Closure;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\RequestInterface;
@@ -44,10 +44,27 @@ class Sender
         string $method,
         string $uri,
         array $options = [],
+        ?Closure $afterRequest = null,
     ): ResponseInterface {
-        $request = new Request($method, $uri);
-        $response = $this->clients[$api->value]->request($request, $options);
-        return $response;
+        try {
+            $startedAt = Carbon::now();
+            $request = new Request($method, $uri);
+            $response = $this->clients[$api->value]->request($request, $options);
+            return $response;
+        } catch (Throwable $e) {
+            throw $e;
+        } finally {
+            if ($afterRequest) {
+                $request?->getBody()->rewind();
+                $afterRequest(
+                    $startedAt ?? null,
+                    $request ?? null,
+                    $options ?? [],
+                    $response ?? null,
+                    $e ?? null
+                );
+            }
+        }
     }
 
     /**
@@ -55,16 +72,18 @@ class Sender
      * https://developer.apple.com/documentation/appstoreserverapi/get_transaction_info
      *
      * @param  string  $transactionId  The identifier of a transaction
+     * @param  Closure|null  $afterRequest
      * @return TransactionInfoResponse
-     * @throws GuzzleException|\Throwable
+     * @throws AppStoreServerApiException
      */
-    public function getTransactionInfo(string $transactionId): TransactionInfoResponse
+    public function getTransactionInfo(string $transactionId, ?Closure $afterRequest = null): TransactionInfoResponse
     {
         return new TransactionInfoResponse(
             $this->request(
                 api: AppStoreApi::AppStoreServer,
                 method: 'GET',
                 uri: "/inApps/v1/transactions/$transactionId",
+                afterRequest: $afterRequest,
             ),
         );
     }
@@ -76,14 +95,15 @@ class Sender
      * @param  int  $appId
      * @param  int  $limit
      * @param  string|null  $cursor
+     * @param  Closure|null  $afterRequest
      * @return SubscriptionGroupsResponse
      * @throws AppStoreServerApiException
-     * @throws \Throwable
      */
     public function getAppSubscriptionGroups(
         int $appId,
         int $limit = 200,
-        string $cursor = null
+        string $cursor = null,
+        ?Closure $afterRequest = null,
     ): SubscriptionGroupsResponse {
         if ($limit < 1 || $limit > 200) {
             throw new \OutOfRangeException('The limit must be between 1 and 200 included');
@@ -100,6 +120,7 @@ class Sender
                         'cursor' => $cursor,
                     ],
                 ],
+                afterRequest: $afterRequest,
             ),
         );
     }
@@ -111,13 +132,15 @@ class Sender
      * @param  int  $subscriptionGroupId
      * @param  int  $limit
      * @param  string|null  $cursor
+     * @param  Closure|null  $afterRequest
      * @return SubscriptionsByGroupResponse
-     * @throws GuzzleException|\Throwable
+     * @throws AppStoreServerApiException
      */
     public function getSubscriptionsByGroup(
         int $subscriptionGroupId,
         int $limit = 200,
-        string $cursor = null
+        string $cursor = null,
+        ?Closure $afterRequest = null,
     ): SubscriptionsByGroupResponse {
         if ($limit < 1 || $limit > 200) {
             throw new \OutOfRangeException('The limit must be between 1 and 200 included');
@@ -134,6 +157,7 @@ class Sender
                         'cursor' => $cursor,
                     ],
                 ],
+                afterRequest: $afterRequest,
             ),
         );
     }
@@ -145,13 +169,15 @@ class Sender
      * @param  int  $subscriptionId
      * @param  int  $limit
      * @param  string|null  $cursor
+     * @param  Closure|null  $afterRequest
      * @return SubscriptionPricesResponse
-     * @throws GuzzleException|\Throwable
+     * @throws AppStoreServerApiException
      */
     public function getSubscriptionPrices(
         int $subscriptionId,
         int $limit = 200,
-        string $cursor = null
+        string $cursor = null,
+        ?Closure $afterRequest = null,
     ): SubscriptionPricesResponse {
         if ($limit < 1 || $limit > 200) {
             throw new \OutOfRangeException('The limit must be between 1 and 200 included');
@@ -171,6 +197,7 @@ class Sender
                         'cursor' => $cursor,
                     ],
                 ],
+                afterRequest: $afterRequest,
             ),
         );
     }
@@ -182,11 +209,14 @@ class Sender
      *
      * @param  string  $transactionId
      * @param  ConsumptionRequest  $consumptionRequest
+     * @param  Closure|null  $afterRequest
      * @return void
-     * @throws \Throwable
      */
-    public function sendConsumptionInformation(string $transactionId, ConsumptionRequest $consumptionRequest): void
-    {
+    public function sendConsumptionInformation(
+        string $transactionId,
+        ConsumptionRequest $consumptionRequest,
+        ?Closure $afterRequest = null,
+    ): void {
         $this->request(
             api: AppStoreApi::AppStoreServer,
             method: 'PUT',
@@ -194,6 +224,7 @@ class Sender
             options: [
                 RequestOptions::JSON => $consumptionRequest->toResponse(),
             ],
+            afterRequest: $afterRequest,
         );
     }
 
@@ -203,13 +234,14 @@ class Sender
      *
      * @param  NotificationHistoryRequest  $request
      * @param  string  $paginationToken
+     * @param  Closure|null  $afterRequest
      * @return NotificationHistoryResponse
      * @throws AppStoreServerApiException
-     * @throws \Throwable
      */
     public function getNotificationHistory(
         NotificationHistoryRequest $request,
-        string $paginationToken = ''
+        string $paginationToken = '',
+        ?Closure $afterRequest = null,
     ): NotificationHistoryResponse {
         return new NotificationHistoryResponse(
             $this->request(
@@ -220,6 +252,7 @@ class Sender
                     RequestOptions::JSON => $request->toResponse(),
                     RequestOptions::QUERY => $paginationToken ? ['paginationToken' => $paginationToken] : [],
                 ],
+                afterRequest: $afterRequest,
             )
         );
     }
@@ -230,16 +263,21 @@ class Sender
      *
      * @param  string  $transactionId
      * @param  array|null  $statuses
+     * @param  Closure|null  $afterRequest
      * @return StatusResponse
-     * @throws \Throwable
+     * @throws AppStoreServerApiException
      */
-    public function getAllSubscriptionStatuses(string $transactionId, ?array $statuses = null): StatusResponse
-    {
+    public function getAllSubscriptionStatuses(
+        string $transactionId,
+        ?array $statuses = null,
+        ?Closure $afterRequest = null
+    ): StatusResponse {
         return new StatusResponse(
             $this->request(
                 api: AppStoreApi::AppStoreServer,
                 method: 'GET',
                 uri: "/inApps/v1/subscriptions/$transactionId",
+                afterRequest: $afterRequest,
             ),
         );
     }
