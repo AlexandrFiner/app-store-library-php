@@ -220,7 +220,7 @@ class Sender
         $this->request(
             api: AppStoreApi::AppStoreServer,
             method: 'PUT',
-            uri: "/v1/transactions/consumption/$transactionId",
+            uri: "/inApps/v1/transactions/consumption/$transactionId",
             options: [
                 RequestOptions::JSON => $consumptionRequest->toResponse(),
             ],
