@@ -3,7 +3,6 @@
 namespace AppStoreLibrary\AppStoreObjects;
 
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class Property
 {
@@ -45,12 +44,12 @@ class Property
 
     public function setValue(mixed $value): self
     {
+        $this->raw = $value;
         if (is_null($value)) {
             if (!$this->nullable) {
                 throw new \Error('nullable value doesnt accepted');
             }
             $this->value = null;
-            $this->raw = $value;
             return $this;
         }
         $valueType = gettype($value);
@@ -61,11 +60,29 @@ class Property
             default => $valueType,
         };
         if (!in_array($valueType, $this->write)) {
+            if ($valueType !== 'string') {
+                throw new \Exception("Cannot setValue property to type $valueType");
+            }
+
+            if (in_array(Carbon::class, $this->write)) {
+                $this->value = Carbon::parse($value);
+                return $this;
+            }
+
+            if (in_array('float', $this->write)) {
+                $this->value = (float) $value;
+                return $this;
+            }
+
+            if (in_array('int', $this->write)) {
+                $this->value = (int) $value;
+                return $this;
+            }
+
             throw new \Exception("Cannot setValue property to type $valueType");
         }
         if (enum_exists($this->type)) {
             $this->value = $value instanceof $this->type ? $value : $this->type::tryFrom($value);
-            $this->raw = $value;
             return $this;
         }
         if (class_exists($this->type)) {
@@ -93,7 +110,6 @@ class Property
                     return $this;
                 }
                 $this->value = collect($value);
-                $this->raw = $value;
                 return $this;
             }
 
@@ -108,11 +124,18 @@ class Property
                     ? $value
                     : $this->type::fromArray($value),
             };
-            $this->raw = $value;
             return $this;
         }
         $this->value = $value;
-        $this->raw = $value;
+        if (
+            $valueType === 'string'
+            && !($this->value = trim($value))
+        ) {
+            if (!$this->nullable) {
+                throw new \Error('nullable value doesnt accepted');
+            }
+            $this->value = null;
+        }
         return $this;
     }
 

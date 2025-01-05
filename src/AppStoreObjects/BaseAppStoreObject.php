@@ -16,6 +16,11 @@ abstract class BaseAppStoreObject
     protected mixed $raw = null;
 
     /**
+     * @var bool whether to throw an exception when an attempt is made to add a non-existent property
+     */
+    protected static bool $strict = true;
+
+    /**
      * @throws \Exception
      */
     public static function fromArray(array $data, mixed $raw = null): static
@@ -23,7 +28,7 @@ abstract class BaseAppStoreObject
         $instance = new static();
         $instance->raw = $raw ?? $data;
         foreach ($data as $key => $value) {
-            $instance->__set($key, $value);
+            $instance->set($key, $value);
         }
         return $instance;
     }
@@ -38,13 +43,37 @@ abstract class BaseAppStoreObject
      */
     public function __set(string $key, $value): void
     {
+        $this->set($key, $value);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function set(string $key, $value): static
+    {
         if (!$this->isPropertyExists($key)) {
+            if (!static::$strict) {
+                trigger_error('Property "' . $key . '" does not exist', E_USER_WARNING);
+                return $this;
+            }
             throw new \Exception("Undefined property $key");
         }
         $this->properties[$key]->setValue($value);
+        return $this;
     }
 
-    public function __get($key)
+    /**
+     * @throws \Exception
+     */
+    public function __get($key): mixed
+    {
+        return $this->get($key);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function get($key): mixed
     {
         if (!$this->isPropertyExists($key)) {
             if ($key === 'raw') {
