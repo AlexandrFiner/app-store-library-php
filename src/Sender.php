@@ -7,6 +7,8 @@ use AppStoreLibrary\Enums\AppStoreApi;
 use AppStoreLibrary\Enums\ServerNotifications\Environment;
 use AppStoreLibrary\Exceptions\AppStoreServerApiException;
 use AppStoreLibrary\Requests\ConsumptionRequest;
+use AppStoreLibrary\Requests\DownloadFinanceReportsRequest;
+use AppStoreLibrary\Requests\DownloadSalesAndTrendsReportsRequest;
 use AppStoreLibrary\Requests\NotificationHistoryRequest;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionGroupsResponse;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionPricesResponse;
@@ -102,7 +104,7 @@ class Sender
     public function getAppSubscriptionGroups(
         int $appId,
         int $limit = 200,
-        string $cursor = null,
+        ?string $cursor = null,
         ?Closure $afterRequest = null,
     ): SubscriptionGroupsResponse {
         if ($limit < 1 || $limit > 200) {
@@ -139,7 +141,7 @@ class Sender
     public function getSubscriptionsByGroup(
         int $subscriptionGroupId,
         int $limit = 200,
-        string $cursor = null,
+        ?string $cursor = null,
         ?Closure $afterRequest = null,
     ): SubscriptionsByGroupResponse {
         if ($limit < 1 || $limit > 200) {
@@ -176,7 +178,7 @@ class Sender
     public function getSubscriptionPrices(
         int $subscriptionId,
         int $limit = 200,
-        string $cursor = null,
+        ?string $cursor = null,
         ?Closure $afterRequest = null,
     ): SubscriptionPricesResponse {
         if ($limit < 1 || $limit > 200) {
@@ -279,6 +281,63 @@ class Sender
                 uri: "/inApps/v1/subscriptions/$transactionId",
                 afterRequest: $afterRequest,
             ),
+        );
+    }
+
+    /**
+     * Download finance reports filtered by your specified criteria.
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/get-v1-financereports
+     *
+     * @param  DownloadFinanceReportsRequest  $request
+     * @param  Closure|null  $afterRequest
+     * @return ResponseInterface
+     */
+    public function downloadFinanceReports(
+        DownloadFinanceReportsRequest $request,
+        string $tmpFile,
+        ?Closure $afterRequest = null,
+    ) {
+        return $this->request(
+            api: AppStoreApi::AppStoreConnect,
+            method: 'GET',
+            uri: '/v1/financeReports',
+            options: [
+                RequestOptions::QUERY => ['filter' => $request->toResponse()],
+                RequestOptions::SINK => $tmpFile,
+                'headers' => [
+                    'Accept' => '*/*',
+                    'Accept-Encoding' => 'gzip, deflate, br',
+                    'Content-Type' => 'application/a-gzip'
+                ],
+            ],
+            afterRequest: $afterRequest,
+        );
+    }
+
+    /**
+     * Download sales and trends reports filtered by your specified criteria.
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/get-v1-salesreports
+     *
+     * @param  DownloadSalesAndTrendsReportsRequest  $request
+     * @param  Closure|null  $afterRequest
+     * @return ResponseInterface
+     */
+    public function downloadSalesAndTrendsReports(
+        DownloadSalesAndTrendsReportsRequest $request,
+        string $tmpFile,
+        ?Closure $afterRequest = null,
+    ): void {
+        $this->request(
+            api: AppStoreApi::AppStoreConnect,
+            method: 'GET',
+            uri: '/v1/salesReports',
+            options: [
+                RequestOptions::QUERY => ['filter' => $request->toResponse()],
+                RequestOptions::SINK => $tmpFile,
+                'headers' => ['Accept' => 'application/a-gzip'],
+                'decode_content' => false,
+            ],
+            afterRequest: $afterRequest,
         );
     }
 

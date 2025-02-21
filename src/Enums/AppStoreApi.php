@@ -26,7 +26,7 @@ enum AppStoreApi: string
             self::AppStoreServer => $environment === Environment::Production
                 ? 'https://api.storekit.itunes.apple.com'
                 : 'https://api.storekit-sandbox.itunes.apple.com',
-            self::AppStoreConnect => env('APPSTORE_API_CONNECT_HOST', 'https://api.appstoreconnect.apple.com'),
+            self::AppStoreConnect => 'https://api.appstoreconnect.apple.com',
         };
     }
 }

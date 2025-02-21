@@ -2,7 +2,6 @@
 
 namespace AppStoreLibrary\Clients;
 
-use App\Errors\Error;
 use AppStoreLibrary\Enums\AppStoreApi;
 use AppStoreLibrary\Enums\ServerNotifications\Environment;
 use Carbon\Carbon;
@@ -55,26 +54,21 @@ class RealClient implements Client
     public function getAccessToken(): array
     {
         $fetcher = function () {
-            try {
-                $expiresAt = Carbon::now()->addSeconds(self::JWT_EXPIRY_TIME_SECONDS);
-                $token = JWT::encode(
-                    payload: [
-                        'iss' => $this->credentials['APPSTORE_CONNECT_ISSUER_ID'] ?? '',
-                        'exp' => $expiresAt->timestamp,
-                        'aud' => self::JWT_AUDIENCE,
-                        'bid' => $this->credentials['APPSTORE_CONNECT_BUNDLE_ID'] ?? '',
-                    ],
-                    key: $this->credentials['APPSTORE_CONNECT_PRIVATE_KEY'] ?? '',
-                    alg: self::JWT_HASH_ALG,
-                    head: [
-                        'kid' => $this->credentials['APPSTORE_CONNECT_KEY_ID'] ?? '',
-                    ],
-                );
-                return ['token' => $token, 'expires_at' => $expiresAt];
-            } catch (\Throwable $e) {
-                Error::byThrowable($e)->report();
-            }
-            return ['token' => null, 'expires_at' => null];
+            $expiresAt = Carbon::now()->addSeconds(self::JWT_EXPIRY_TIME_SECONDS);
+            $token = JWT::encode(
+                payload: [
+                    'iss' => $this->credentials['APPSTORE_CONNECT_ISSUER_ID'] ?? '',
+                    'exp' => $expiresAt->timestamp,
+                    'aud' => self::JWT_AUDIENCE,
+                    'bid' => $this->credentials['APPSTORE_CONNECT_BUNDLE_ID'] ?? '',
+                ],
+                key: $this->credentials['APPSTORE_CONNECT_PRIVATE_KEY'] ?? '',
+                alg: self::JWT_HASH_ALG,
+                head: [
+                    'kid' => $this->credentials['APPSTORE_CONNECT_KEY_ID'] ?? '',
+                ],
+            );
+            return ['token' => $token, 'expires_at' => $expiresAt];
         };
 
         if ($this->accessToken['expires_at']?->diffInSeconds(Carbon::now()) < self::REFRESH_INTERVAL_SECONDS) {

@@ -5,6 +5,7 @@ namespace AppStoreLibrary\Clients;
 use AppStoreLibrary\Enums\ServerApi\ErrorCodes;
 use Carbon\Carbon;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;
 use Psr\Http\Message\RequestInterface;
@@ -65,9 +66,15 @@ class FakeClient implements Client
                 $response = file_get_contents(base_path("/tests/data/appstore.api.$requestUri.json"));
             }
         }
+
+        if (!empty($options[RequestOptions::SINK])) {
+            copy(static::$responseBody, $options[RequestOptions::SINK]);
+        }
+
         static::$error = null;
         static::$responseBody = null;
         static::$responseStatusCode = null;
+
         return new Response(
             status: $statusCode,
             headers: [
