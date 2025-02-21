@@ -4,18 +4,18 @@
     "type": "library",
     "license": "MIT",
     "authors": [
-      {
-        "name": "Alexandr Morohin",
-        "email": "finersanya@gmail.com"
-      }
+        {
+            "name": "Alexandr Morohin",
+            "email": "finersanya@gmail.com"
+        }
     ],
     "keywords": [
-      "appstore",
-      "connectapi",
-      "serverapi",
-      "server notifications",
-      "iap",
-      "itunes"
+        "appstore",
+        "connectapi",
+        "serverapi",
+        "server notifications",
+        "iap",
+        "itunes"
     ],
     "homepage": "https://github.com/AlexandrFiner/app-store-library-php",
     "php": ">=8.1",
@@ -25,8 +25,8 @@
         "guzzlehttp/uri-template": "^1.0",
         "guzzlehttp/promises": "^2.0",
         "guzzlehttp/guzzle": "^7.8",
-        "nesbot/carbon": "^3.8",
-        "illuminate/collections": "^12.0@dev"
+        "nesbot/carbon": "^2.72",
+        "illuminate/collections": "^10.0"
     },
     "autoload": {
         "psr-4": {
