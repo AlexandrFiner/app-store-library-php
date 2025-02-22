@@ -18,7 +18,7 @@ abstract class BaseAppStoreObject
     /**
      * @var bool whether to throw an exception when an attempt is made to add a non-existent property
      */
-    protected static bool $strict = true;
+    protected static bool $strict = false;
 
     /**
      * @throws \Exception
@@ -53,7 +53,7 @@ abstract class BaseAppStoreObject
     {
         if (!$this->isPropertyExists($key)) {
             if (!static::$strict) {
-                trigger_error('Property "' . $key . '" does not exist', E_USER_WARNING);
+                @trigger_error('Property "' . $key . '" does not exist', E_USER_WARNING);
                 return $this;
             }
             throw new \Exception("Undefined property $key");
