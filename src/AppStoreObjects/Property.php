@@ -3,6 +3,7 @@
 namespace AppStoreLibrary\AppStoreObjects;
 
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class Property
 {
