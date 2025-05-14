@@ -26,7 +26,7 @@
         "guzzlehttp/promises": "^2.0",
         "guzzlehttp/guzzle": "^7.8",
         "nesbot/carbon": "^2.72",
-        "illuminate/collections": "^10.0"
+        "illuminate/collections": "^10.0 || ^11.0 || ^12.0"
     },
     "autoload": {
         "psr-4": {
