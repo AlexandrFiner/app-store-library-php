@@ -35,7 +35,7 @@ class FakeClient implements Client
     #[ArrayShape(['token' => 'string', 'expires_at' => Carbon::class])]
     public function getAccessToken(): array
     {
-        if ($this->accessToken['expires_at']?->diffInSeconds(Carbon::now()) < self::REFRESH_INTERVAL_SECONDS) {
+        if ($this->accessToken['expires_at']?->diffInSeconds(Carbon::now(), true) < self::REFRESH_INTERVAL_SECONDS) {
             $this->accessToken = [
                 'token' => Str::uuid()->toString(),
                 'expires_at' => Carbon::now()->addSeconds(self::JWT_EXPIRY_TIME_SECONDS),

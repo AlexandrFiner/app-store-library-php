@@ -20,7 +20,7 @@ class NotificationHistoryRequest
         private ?bool $onlyFailures = null,
         private ?string $transactionId = null,
     ) {
-        if (Carbon::createFromTimestampMs($this->startDate)->diffInDays() > 180) {
+        if (Carbon::createFromTimestampMs($this->startDate)->diffInDays(absolute: true) > 180) {
             throw new \Exception('Notification history is available for the past 180 days');
         }
         if (Carbon::createFromTimestampMs($this->endDate)->isBefore(Carbon::createFromTimestampMs($this->startDate))) {

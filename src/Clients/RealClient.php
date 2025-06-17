@@ -71,7 +71,7 @@ class RealClient implements Client
             return ['token' => $token, 'expires_at' => $expiresAt];
         };
 
-        if ($this->accessToken['expires_at']?->diffInSeconds(Carbon::now()) < self::REFRESH_INTERVAL_SECONDS) {
+        if ($this->accessToken['expires_at']?->diffInSeconds(Carbon::now(), true) < self::REFRESH_INTERVAL_SECONDS) {
             $this->accessToken = $fetcher();
         }
 
