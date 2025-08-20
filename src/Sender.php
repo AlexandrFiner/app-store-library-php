@@ -53,7 +53,7 @@ class Sender
             $request = new Request($method, $uri);
             $response = $this->clients[$api->value]->request($request, $options);
             return $response;
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             throw $e;
         } finally {
             if ($afterRequest) {
@@ -73,8 +73,8 @@ class Sender
      * Get information about a single transaction for your app.
      * https://developer.apple.com/documentation/appstoreserverapi/get_transaction_info
      *
-     * @param  string  $transactionId  The identifier of a transaction
-     * @param  Closure|null  $afterRequest
+     * @param string $transactionId The identifier of a transaction
+     * @param Closure|null $afterRequest
      * @return TransactionInfoResponse
      * @throws AppStoreServerApiException
      */
@@ -94,10 +94,10 @@ class Sender
      * Get a list of subscription groups for a specific app
      * @link https://developer.apple.com/documentation/appstoreconnectapi/list_all_subscription_groups_for_an_app
      *
-     * @param  int  $appId
-     * @param  int  $limit
-     * @param  string|null  $cursor
-     * @param  Closure|null  $afterRequest
+     * @param int $appId
+     * @param int $limit
+     * @param string|null $cursor
+     * @param Closure|null $afterRequest
      * @return SubscriptionGroupsResponse
      * @throws AppStoreServerApiException
      */
@@ -131,10 +131,10 @@ class Sender
      * List All Subscriptions for a Subscription Group
      * @link https://developer.apple.com/documentation/appstoreconnectapi/list_all_subscriptions_for_a_subscription_group
      *
-     * @param  int  $subscriptionGroupId
-     * @param  int  $limit
-     * @param  string|null  $cursor
-     * @param  Closure|null  $afterRequest
+     * @param int $subscriptionGroupId
+     * @param int $limit
+     * @param string|null $cursor
+     * @param Closure|null $afterRequest
      * @return SubscriptionsByGroupResponse
      * @throws AppStoreServerApiException
      */
@@ -168,10 +168,10 @@ class Sender
      * Get a list of prices for an auto-renewable subscription, by territory.
      * @link https://developer.apple.com/documentation/appstoreconnectapi/list_all_prices_for_a_subscription
      *
-     * @param  int  $subscriptionId
-     * @param  int  $limit
-     * @param  string|null  $cursor
-     * @param  Closure|null  $afterRequest
+     * @param int $subscriptionId
+     * @param int $limit
+     * @param string|null $cursor
+     * @param Closure|null $afterRequest
      * @return SubscriptionPricesResponse
      * @throws AppStoreServerApiException
      */
@@ -209,9 +209,9 @@ class Sender
      * subscription to the App Store after your server receives a consumption request notification.
      * @link https://developer.apple.com/documentation/appstoreserverapi/send_consumption_information
      *
-     * @param  string  $transactionId
-     * @param  ConsumptionRequest  $consumptionRequest
-     * @param  Closure|null  $afterRequest
+     * @param string $transactionId
+     * @param ConsumptionRequest $consumptionRequest
+     * @param Closure|null $afterRequest
      * @return void
      */
     public function sendConsumptionInformation(
@@ -234,9 +234,9 @@ class Sender
      * Get a list of notifications that the App Store server attempted to send to your server.
      * @link https://developer.apple.com/documentation/appstoreserverapi/get_notification_history
      *
-     * @param  NotificationHistoryRequest  $request
-     * @param  string  $paginationToken
-     * @param  Closure|null  $afterRequest
+     * @param NotificationHistoryRequest $request
+     * @param string $paginationToken
+     * @param Closure|null $afterRequest
      * @return NotificationHistoryResponse
      * @throws AppStoreServerApiException
      */
@@ -263,9 +263,9 @@ class Sender
      * Get the statuses for all of a customer’s auto-renewable subscriptions in your app.
      * @link https://developer.apple.com/documentation/appstoreserverapi/get_all_subscription_statuses
      *
-     * @param  string  $transactionId
-     * @param  array|null  $statuses
-     * @param  Closure|null  $afterRequest
+     * @param string $transactionId
+     * @param array|null $statuses
+     * @param Closure|null $afterRequest
      * @return StatusResponse
      * @throws AppStoreServerApiException
      */
@@ -288,8 +288,8 @@ class Sender
      * Download finance reports filtered by your specified criteria.
      * @link https://developer.apple.com/documentation/appstoreconnectapi/get-v1-financereports
      *
-     * @param  DownloadFinanceReportsRequest  $request
-     * @param  Closure|null  $afterRequest
+     * @param DownloadFinanceReportsRequest $request
+     * @param Closure|null $afterRequest
      * @return ResponseInterface
      */
     public function downloadFinanceReports(
@@ -318,8 +318,8 @@ class Sender
      * Download sales and trends reports filtered by your specified criteria.
      * @link https://developer.apple.com/documentation/appstoreconnectapi/get-v1-salesreports
      *
-     * @param  DownloadSalesAndTrendsReportsRequest  $request
-     * @param  Closure|null  $afterRequest
+     * @param DownloadSalesAndTrendsReportsRequest $request
+     * @param Closure|null $afterRequest
      * @return ResponseInterface
      */
     public function downloadSalesAndTrendsReports(
@@ -336,6 +336,23 @@ class Sender
                 RequestOptions::SINK => $tmpFile,
                 'headers' => ['Accept' => 'application/a-gzip'],
                 'decode_content' => false,
+            ],
+            afterRequest: $afterRequest,
+        );
+    }
+
+    public function configureDefaultMessage(
+        string $productId,
+        string $locale,
+        string $messageIdentifier,
+        ?Closure $afterRequest = null,
+    ): void {
+         $this->request(
+            api: AppStoreApi::AppStoreServer,
+            method: 'PUT',
+            uri: "/inApps/v1/messaging/default/$productId/$locale",
+            options: [
+                RequestOptions::JSON => ['messageIdentifier' => $messageIdentifier],
             ],
             afterRequest: $afterRequest,
         );
