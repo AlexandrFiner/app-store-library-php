@@ -2,8 +2,6 @@
 
 namespace AppStoreLibrary\Enums\ConnectApi\Report\SalesAndTrends;
 
-use Google\Service\Testing\AppBundle;
-
 /**
  * These are the different product type identifiers used in your sales and financial reports for the App Store:
  * @link https://developer.apple.com/help/app-store-connect/reference/product-type-identifiers

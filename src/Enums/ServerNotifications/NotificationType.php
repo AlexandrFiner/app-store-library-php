@@ -2,7 +2,6 @@
 
 namespace AppStoreLibrary\Enums\ServerNotifications;
 
-use AppStoreLibrary\Enums\AppStoreNotificationSubtype;
 use AppStoreLibrary\Enums\ServerNotifications\Subtype as NotificationSubType;
 
 /**

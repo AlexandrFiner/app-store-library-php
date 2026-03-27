@@ -2,7 +2,7 @@
 
 namespace AppStoreLibrary\Responses\ConnectApi;
 
-use App\Helpers\CountryHelper;
+use AppStoreLibrary\Helpers\CountryHelper;
 use AppStoreLibrary\Responses\BaseResponse;
 use AppStoreLibrary\Responses\HasDataTrait;
 use AppStoreLibrary\Responses\HasIncludedTrait;
