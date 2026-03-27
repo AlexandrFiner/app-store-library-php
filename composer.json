@@ -1,14 +1,8 @@
 {
     "name": "alexandrfiner/app-store-library-php",
     "description": "A library that implements the App Store API (Server API and Connect API) and facilitates App Store Server Notifications V2",
-    "type": "library",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Alexandr Morohin",
-            "email": "finersanya@gmail.com"
-        }
-    ],
+    "type": "library",
     "keywords": [
         "appstore",
         "connectapi",
@@ -17,9 +11,16 @@
         "iap",
         "itunes"
     ],
+    "authors": [
+        {
+            "name": "Alexandr Morohin",
+            "email": "finersanya@gmail.com",
+            "homepage": "https://github.com/AlexandrFiner"
+        }
+    ],
     "homepage": "https://github.com/AlexandrFiner/app-store-library-php",
-    "php": ">=8.1",
     "require": {
+        "php": "^8.1",
         "firebase/php-jwt": "^6.10",
         "guzzlehttp/psr7": "^2.6",
         "guzzlehttp/uri-template": "^1.0",
@@ -30,14 +31,23 @@
         "illuminate/support": "^10.0 || ^11.0 || ^12.0 || ^13.0",
         "symfony/intl": "8.1.x-dev"
     },
+    "require-dev": {
+        "symfony/var-dumper": "7.3.x-dev",
+        "friendsofphp/php-cs-fixer": "dev-master"
+    },
+    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "AppStoreLibrary\\": "src/"
         }
     },
-    "minimum-stability": "dev",
-    "require-dev": {
-        "symfony/var-dumper": "7.3.x-dev",
-        "friendsofphp/php-cs-fixer": "dev-master"
+    "scripts": {
+        "phpcs": "php-cs-fixer fix -v --diff --dry-run",
+        "style-check": [
+            "@phpcs"
+        ],
+        "test": [
+            "@style-check"
+        ]
     }
 }

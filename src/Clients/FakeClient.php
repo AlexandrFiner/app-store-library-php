@@ -79,9 +79,9 @@ class FakeClient implements Client
             status: $statusCode,
             headers: [
                 'Content-Type' => 'application/json',
-                "X-Rate-Limit" => [
-                    "user-hour-lim:3600;user-hour-rem:3599;",
-                    "user-minute-lim:150;user-minute-rem:149;",
+                'X-Rate-Limit' => [
+                    'user-hour-lim:3600;user-hour-rem:3599;',
+                    'user-minute-lim:150;user-minute-rem:149;',
                 ],
             ],
             body: $response,

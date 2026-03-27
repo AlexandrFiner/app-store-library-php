@@ -2,7 +2,6 @@
 
 namespace AppStoreLibrary\AppStoreObjects\ServerApi;
 
-use AppStoreLibrary\AppStoreObjects\BaseAppStoreObject;
 use AppStoreLibrary\AppStoreObjects\Property;
 use AppStoreLibrary\Enums\ConnectApi\Report\Period;
 use AppStoreLibrary\Enums\ConnectApi\Report\SalesAndTrends\ProductTypeIdentifier;

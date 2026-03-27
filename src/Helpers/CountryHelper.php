@@ -12,7 +12,7 @@ class CountryHelper
     public static function alpha3ToAlpha2(string $countryCode): string
     {
         if (strlen($countryCode) != 3) {
-            throw new \InvalidArgumentException("Country Code must be 3 alpha.");
+            throw new \InvalidArgumentException('Country Code must be 3 alpha.');
         }
         try {
             return Countries::getAlpha2Code($countryCode);
@@ -34,7 +34,7 @@ class CountryHelper
     public static function alpha2ToAlpha3(string $countryCode): string
     {
         if (strlen($countryCode) != 2) {
-            throw new \InvalidArgumentException("Country Code must be 2 alpha.");
+            throw new \InvalidArgumentException('Country Code must be 2 alpha.');
         }
         try {
             return Countries::getAlpha3Code($countryCode);

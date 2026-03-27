@@ -38,7 +38,7 @@ class ConsumptionRequest
         if (!$this->customerConsented) {
             // The App Store server rejects requests that have a customerConsented value
             // other than true by returning an HTTP 400 error with an InvalidCustomerConsentError
-            throw new \Exception("Customer consented must be true");
+            throw new \Exception('Customer consented must be true');
         }
     }
 

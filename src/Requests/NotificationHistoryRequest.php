@@ -40,7 +40,7 @@ class NotificationHistoryRequest
         'notificationType' => 'string',
         'notificationSubtype' => 'string',
         'onlyFailures' => 'bool',
-        'transactionId' => 'string'
+        'transactionId' => 'string',
     ])]
     public function toResponse(): array
     {

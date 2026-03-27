@@ -47,7 +47,6 @@ use Carbon\Carbon;
  * @property null|string $deviceVerification
  * @property null|string $deviceVerificationNonce
  */
-
 class JwsRepresentationTransaction extends JWSTransactionDecodedPayload implements Signable
 {
     use HasSignable;

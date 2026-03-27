@@ -307,7 +307,7 @@ class Sender
                 'headers' => [
                     'Accept' => '*/*',
                     'Accept-Encoding' => 'gzip, deflate, br',
-                    'Content-Type' => 'application/a-gzip'
+                    'Content-Type' => 'application/a-gzip',
                 ],
             ],
             afterRequest: $afterRequest,
