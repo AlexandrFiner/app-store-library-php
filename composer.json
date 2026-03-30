@@ -20,7 +20,7 @@
     ],
     "homepage": "https://github.com/AlexandrFiner/app-store-library-php",
     "require": {
-        "php": "^8.1",
+        "php": "^8.4",
         "firebase/php-jwt": "^7.0",
         "guzzlehttp/psr7": "^2.6",
         "guzzlehttp/uri-template": "^1.0",
@@ -33,12 +33,18 @@
     },
     "require-dev": {
         "symfony/var-dumper": "^8.0",
-        "friendsofphp/php-cs-fixer": "^3.94"
+        "friendsofphp/php-cs-fixer": "^3.94",
+        "phpunit/phpunit": "^13.1"
     },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "AppStoreLibrary\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AppStoreLibrary\\Tests\\": "tests/"
         }
     },
     "scripts": {
