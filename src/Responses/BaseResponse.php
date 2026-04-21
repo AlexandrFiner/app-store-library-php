@@ -27,8 +27,9 @@ abstract class BaseResponse
                 );
             }
         }
-        if ($this->response->getStatusCode() !== 200) {
-            throw new \Exception($this->response->getReasonPhrase(), $this->response->getStatusCode());
+        $statusCode = $this->response->getStatusCode();
+        if ($statusCode < 200 || $statusCode >= 300) {
+            throw new \Exception($this->response->getReasonPhrase(), $statusCode);
         }
     }
 

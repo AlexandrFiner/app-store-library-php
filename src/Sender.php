@@ -10,9 +10,21 @@ use AppStoreLibrary\Requests\ConsumptionRequest;
 use AppStoreLibrary\Requests\DownloadFinanceReportsRequest;
 use AppStoreLibrary\Requests\DownloadSalesAndTrendsReportsRequest;
 use AppStoreLibrary\Requests\NotificationHistoryRequest;
+use AppStoreLibrary\Requests\SubscriptionAppStoreReviewScreenshotCreateRequest;
+use AppStoreLibrary\Requests\SubscriptionAppStoreReviewScreenshotUpdateRequest;
+use AppStoreLibrary\Requests\SubscriptionAvailabilityCreateRequest;
+use AppStoreLibrary\Requests\SubscriptionCreateRequest;
+use AppStoreLibrary\Requests\SubscriptionLocalizationCreateRequest;
+use AppStoreLibrary\Requests\SubscriptionUpdateRequest;
+use AppStoreLibrary\Responses\ConnectApi\SubscriptionAppStoreReviewScreenshotResponse;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionGroupsResponse;
+use AppStoreLibrary\Responses\ConnectApi\SubscriptionLocalizationResponse;
+use AppStoreLibrary\Responses\ConnectApi\SubscriptionPricePointEqualizationsLinkagesResponse;
+use AppStoreLibrary\Responses\ConnectApi\SubscriptionPricePointsResponse;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionPricesResponse;
+use AppStoreLibrary\Responses\ConnectApi\SubscriptionResponse;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionsByGroupResponse;
+use AppStoreLibrary\Responses\ConnectApi\TerritoriesResponse;
 use AppStoreLibrary\Responses\ServerApi\NotificationHistoryResponse;
 use AppStoreLibrary\Responses\ServerApi\StatusResponse;
 use AppStoreLibrary\Responses\ServerApi\TransactionInfoResponse;
@@ -22,7 +34,6 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Throwable;
 
 class Sender
 {
@@ -42,6 +53,11 @@ class Sender
         }
     }
 
+    public function getClient(AppStoreApi $api): Client
+    {
+        return $this->clients[$api->value];
+    }
+
     private function request(
         AppStoreApi $api,
         string $method,
@@ -58,7 +74,7 @@ class Sender
             throw $e;
         } finally {
             if ($afterRequest) {
-                $request?->getBody()->rewind();
+                $response->getBody()->rewind();
                 $afterRequest(
                     $startedAt ?? null,
                     $request ?? null,
@@ -339,6 +355,211 @@ class Sender
                 'decode_content' => false,
             ],
             afterRequest: $afterRequest,
+        );
+    }
+
+    /**
+     * Create an auto-renewable subscription for your app.
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/post-v1-subscriptions
+     */
+    public function createAutoRenewableSubscription(
+        SubscriptionCreateRequest $request,
+        ?Closure $afterRequest = null,
+    ): SubscriptionResponse {
+        return new SubscriptionResponse(
+            $this->request(
+                api: AppStoreApi::AppStoreConnect,
+                method: 'POST',
+                uri: '/v1/subscriptions',
+                options: [
+                    RequestOptions::JSON => $request->toRequest(),
+                ],
+                afterRequest: $afterRequest,
+            )
+        );
+    }
+
+    public function updateAutoRenewableSubscription(
+        int $subscriptionId,
+        SubscriptionUpdateRequest $request,
+        ?Closure $afterRequest = null,
+    ) {
+        return $this->request(
+            api: AppStoreApi::AppStoreConnect,
+            method: 'PATCH',
+            uri: "/v1/subscriptions/$subscriptionId",
+            options: [RequestOptions::JSON => $request->toRequest()],
+            afterRequest: $afterRequest,
+        );
+    }
+
+    /**
+     * Create a localized display name and description for an auto-renewable subscription.
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/post-v1-subscriptionlocalizations
+     */
+    public function createSubscriptionLocalization(
+        SubscriptionLocalizationCreateRequest $request,
+        ?Closure $afterRequest = null,
+    ): SubscriptionLocalizationResponse {
+        return new SubscriptionLocalizationResponse(
+            $this->request(
+                api: AppStoreApi::AppStoreConnect,
+                method: 'POST',
+                uri: '/v1/subscriptionLocalizations',
+                options: [
+                    RequestOptions::JSON => $request->toRequest(),
+                ],
+                afterRequest: $afterRequest,
+            ),
+        );
+    }
+
+    /**
+     * Get a list of price points for an auto-renewable subscription by territory.
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/get-v1-subscriptions-_id_-pricepoints
+     */
+    public function getSubscriptionPricePoints(
+        int $subscriptionId,
+        int $limit = 200,
+        ?string $territory = null,
+        ?string $cursor = null,
+        ?Closure $afterRequest = null,
+    ): SubscriptionPricePointsResponse {
+        $query = [
+            'fields[subscriptionPricePoints]' => 'customerPrice',
+            'limit' => $limit,
+            'cursor' => $cursor,
+        ];
+        if (!empty($territory)) {
+            $query['filter[territory]'] = trim($territory);
+        }
+        return new SubscriptionPricePointsResponse(
+            $this->request(
+                api: AppStoreApi::AppStoreConnect,
+                method: 'GET',
+                uri: "/v1/subscriptions/$subscriptionId/pricePoints",
+                options: [
+                    RequestOptions::QUERY => $query,
+                ],
+                afterRequest: $afterRequest,
+            ),
+        );
+    }
+
+    /**
+     * List all territories where the App Store operates.
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/get-v1-territories
+     */
+    public function getTerritories(
+        int $limit = 200,
+        ?string $cursor = null,
+        ?Closure $afterRequest = null,
+    ): TerritoriesResponse {
+        $query = [
+            'fields[territories]' => 'currency',
+            'limit' => $limit,
+            'cursor' => $cursor,
+        ];
+        return new TerritoriesResponse(
+            $this->request(
+                api: AppStoreApi::AppStoreConnect,
+                method: 'GET',
+                uri: '/v1/territories',
+                options: [
+                    RequestOptions::QUERY => $query,
+                ],
+                afterRequest: $afterRequest,
+            ),
+        );
+    }
+
+    /**
+     * Update the territory availability of a specific subscription.
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/post-v1-subscriptionavailabilities
+     */
+    public function updateSubscriptionAvailabilities(
+        SubscriptionAvailabilityCreateRequest $request,
+        ?Closure $afterRequest = null,
+    ) {
+        $this->request(
+            api: AppStoreApi::AppStoreConnect,
+            method: 'POST',
+            uri: '/v1/subscriptionAvailabilities',
+            options: [
+                RequestOptions::JSON => $request->toRequest(),
+            ],
+            afterRequest: $afterRequest,
+        );
+    }
+
+    /**
+     * Reserve a review screenshot for an auto-renewable subscription.
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/post-v1-subscriptionappstorereviewscreenshots
+     */
+    public function createReviewScreenshotForSubscription(
+        SubscriptionAppStoreReviewScreenshotCreateRequest $request,
+        ?Closure $afterRequest = null,
+    ): SubscriptionAppStoreReviewScreenshotResponse {
+        return new SubscriptionAppStoreReviewScreenshotResponse(
+            $this->request(
+                api: AppStoreApi::AppStoreConnect,
+                method: 'POST',
+                uri: '/v1/subscriptionAppStoreReviewScreenshots',
+                options: [
+                    RequestOptions::JSON => $request->toRequest(),
+                ],
+                afterRequest: $afterRequest,
+            ),
+        );
+    }
+
+    /**
+     * Commit an uploaded image asset as a review screenshot for an auto-renewable subscription.
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/patch-v1-subscriptionappstorereviewscreenshots-_id_
+     */
+    public function commitReviewScreenshotForSubscription(
+        string $screenshotId,
+        SubscriptionAppStoreReviewScreenshotUpdateRequest $request,
+        ?Closure $afterRequest = null,
+    ): SubscriptionAppStoreReviewScreenshotResponse {
+        return new SubscriptionAppStoreReviewScreenshotResponse(
+            $this->request(
+                api: AppStoreApi::AppStoreConnect,
+                method: 'PATCH',
+                uri: "/v1/subscriptionAppStoreReviewScreenshots/$screenshotId",
+                options: [
+                    RequestOptions::JSON => $request->toRequest(),
+                ],
+                afterRequest: $afterRequest,
+            ),
+        );
+    }
+
+    /**
+     * @link https://developer.apple.com/documentation/appstoreconnectapi/get-v1-subscriptionpricepoints-_id_-relationships-equalizations
+     */
+    public function getSubscriptionPricePointEqualizations(
+        string $pricePointId,
+        int $limit = 200,
+        ?string $cursor = null,
+        ?Closure $afterRequest = null,
+    ): SubscriptionPricePointEqualizationsLinkagesResponse {
+        $query = [
+            'fields[subscriptionPricePoints]' => 'customerPrice,territory',
+            'include' => 'territory',
+            'limit' => $limit,
+            'cursor' => $cursor,
+        ];
+        return new SubscriptionPricePointEqualizationsLinkagesResponse(
+            $this->request(
+                api: AppStoreApi::AppStoreConnect,
+                method: 'GET',
+                uri: "v1/subscriptionPricePoints/$pricePointId/equalizations",
+                options: [
+                    RequestOptions::QUERY => $query,
+                ],
+                afterRequest: $afterRequest,
+            ),
         );
     }
 
