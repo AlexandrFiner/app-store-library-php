@@ -74,7 +74,7 @@ class Sender
             throw $e;
         } finally {
             if ($afterRequest) {
-                $response->getBody()->rewind();
+                $response?->getBody()->rewind();
                 $afterRequest(
                     $startedAt ?? null,
                     $request ?? null,
