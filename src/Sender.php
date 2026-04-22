@@ -34,6 +34,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 
 class Sender
 {
@@ -65,8 +66,9 @@ class Sender
         array $options = [],
         ?Closure $afterRequest = null,
     ): ResponseInterface {
+        $startedAt = Carbon::now();
+        $request = $response = null;
         try {
-            $startedAt = Carbon::now();
             $request = new Request($method, $uri);
             $response = $this->clients[$api->value]->request($request, $options);
             return $response;
@@ -75,13 +77,7 @@ class Sender
         } finally {
             if ($afterRequest) {
                 $response?->getBody()->rewind();
-                $afterRequest(
-                    $startedAt ?? null,
-                    $request ?? null,
-                    $options ?? [],
-                    $response ?? null,
-                    $e ?? null
-                );
+                $afterRequest($startedAt, $request, $options, $response, $e ?? null);
             }
         }
     }

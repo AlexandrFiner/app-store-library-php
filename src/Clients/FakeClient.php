@@ -11,7 +11,7 @@ use JetBrains\PhpStorm\ArrayShape;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-if (!function_exists(__NAMESPACE__ . '\base_path')) {
+if (!function_exists('base_path')) {
     function base_path(string $path = ''): string
     {
         $base = dirname(__DIR__, 2);
