@@ -6,6 +6,7 @@ use AppStoreLibrary\Clients\Client;
 use AppStoreLibrary\Enums\AppStoreApi;
 use AppStoreLibrary\Enums\ServerNotifications\Environment;
 use AppStoreLibrary\Exceptions\AppStoreServerApiException;
+use AppStoreLibrary\Requests\ConfigureDefaultRetentionMessageRequest;
 use AppStoreLibrary\Requests\ConsumptionRequest;
 use AppStoreLibrary\Requests\DownloadFinanceReportsRequest;
 use AppStoreLibrary\Requests\DownloadSalesAndTrendsReportsRequest;
@@ -16,6 +17,7 @@ use AppStoreLibrary\Requests\SubscriptionAvailabilityCreateRequest;
 use AppStoreLibrary\Requests\SubscriptionCreateRequest;
 use AppStoreLibrary\Requests\SubscriptionLocalizationCreateRequest;
 use AppStoreLibrary\Requests\SubscriptionUpdateRequest;
+use AppStoreLibrary\Requests\UploadRetentionMessageRequestBody;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionAppStoreReviewScreenshotResponse;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionGroupsResponse;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionLocalizationResponse;
@@ -25,6 +27,8 @@ use AppStoreLibrary\Responses\ConnectApi\SubscriptionPricesResponse;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionResponse;
 use AppStoreLibrary\Responses\ConnectApi\SubscriptionsByGroupResponse;
 use AppStoreLibrary\Responses\ConnectApi\TerritoriesResponse;
+use AppStoreLibrary\Responses\ServerApi\DefaultRetentionMessageConfigurationResponse;
+use AppStoreLibrary\Responses\ServerApi\GetRetentionMessageListResponse;
 use AppStoreLibrary\Responses\ServerApi\NotificationHistoryResponse;
 use AppStoreLibrary\Responses\ServerApi\StatusResponse;
 use AppStoreLibrary\Responses\ServerApi\TransactionInfoResponse;
@@ -239,6 +243,115 @@ class Sender
             options: [
                 RequestOptions::JSON => $consumptionRequest->toResponse(),
             ],
+            afterRequest: $afterRequest,
+        );
+    }
+
+    /**
+     * Configures a default message for a specific product in a specific locale.
+     * @link https://developer.apple.com/documentation/retentionmessaging/configure-default-message
+     */
+    public function configureDefaultRetentionMessage(
+        string $productId,
+        string $locale,
+        ConfigureDefaultRetentionMessageRequest $request,
+        ?Closure $afterRequest = null,
+    ): void {
+        $this->request(
+            api: AppStoreApi::AppStoreServer,
+            method: 'PUT',
+            uri: "/inApps/v1/messaging/default/$productId/$locale",
+            options: [
+                RequestOptions::JSON => $request->toResponse(),
+            ],
+            afterRequest: $afterRequest,
+        );
+    }
+
+    /**
+     * Upload a message to use for retention messaging.
+     * @link https://developer.apple.com/documentation/retentionmessaging/upload-message
+     */
+    public function uploadRetentionMessage(
+        string $messageIdentifier,
+        UploadRetentionMessageRequestBody $request,
+        ?Closure $afterRequest = null,
+    ): void {
+        $this->request(
+            api: AppStoreApi::AppStoreServer,
+            method: 'PUT',
+            uri: "/inApps/v1/messaging/message/$messageIdentifier",
+            options: [
+                RequestOptions::JSON => $request->toResponse(),
+            ],
+            afterRequest: $afterRequest,
+        );
+    }
+
+    /**
+     * Delete a previously uploaded message.
+     * @link https://developer.apple.com/documentation/retentionmessaging/delete-message
+     */
+    public function deleteRetentionMessage(
+        string $messageIdentifier,
+        ?Closure $afterRequest = null,
+    ): void {
+        $this->request(
+            api: AppStoreApi::AppStoreServer,
+            method: 'DELETE',
+            uri: "/inApps/v1/messaging/message/$messageIdentifier",
+            afterRequest: $afterRequest,
+        );
+    }
+
+    /**
+     * Get the message identifier and state of all uploaded messages.
+     * @link https://developer.apple.com/documentation/retentionmessaging/get-message-list
+     */
+    public function getRetentionMessageList(?Closure $afterRequest = null): GetRetentionMessageListResponse
+    {
+        return new GetRetentionMessageListResponse(
+            $this->request(
+                api: AppStoreApi::AppStoreServer,
+                method: 'GET',
+                uri: '/inApps/v1/messaging/message/list',
+                afterRequest: $afterRequest,
+            ),
+        );
+    }
+
+    /**
+     * Gets the default message for a specific product in a specific locale, if it’s configured.
+     * @link https://developer.apple.com/documentation/retentionmessaging/get-default-message
+     */
+    public function getDefaultRetentionMessage(
+        string $productId,
+        string $locale,
+        ?Closure $afterRequest = null,
+    ): DefaultRetentionMessageConfigurationResponse {
+        return new DefaultRetentionMessageConfigurationResponse(
+            $this->request(
+                api: AppStoreApi::AppStoreServer,
+                method: 'GET',
+                uri: "/inApps/v1/messaging/default/$productId/$locale",
+                afterRequest: $afterRequest,
+            ),
+        );
+    }
+
+    /**
+     * Deletes a default message for a product in a locale.
+     * @link https://developer.apple.com/documentation/retentionmessaging/delete-default-message
+     */
+    public function deleteDefaultRetentionMessage(
+        string $productId,
+        string $locale,
+        ?Closure $afterRequest = null,
+    ): void {
+        $this->request(
+            api: AppStoreApi::AppStoreServer,
+            method: 'DELETE',
+            uri: "/inApps/v1/messaging/default/$productId/$locale",
             afterRequest: $afterRequest,
         );
     }
