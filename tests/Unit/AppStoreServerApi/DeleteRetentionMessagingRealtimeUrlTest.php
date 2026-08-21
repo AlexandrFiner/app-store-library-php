@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-final class ConfigureDefaultRetentionMessageTest extends TestCase
+final class DeleteRetentionMessagingRealtimeUrlTest extends TestCase
 {
     public function testSendsExpectedRequest(): void
     {
@@ -29,33 +29,24 @@ final class ConfigureDefaultRetentionMessageTest extends TestCase
 
         $capturedMethod = null;
         $capturedUrl = null;
-        $capturedBody = null;
         $capturedStatusCode = null;
 
-        $api->configureDefaultRetentionMessage(
-            productId: 'com.example.subscription.monthly',
-            locale: 'en-US',
-            messageIdentifier: 'msg_01',
+        $api->deleteRetentionMessagingRealtimeUrl(
             afterRequest: function (
                 Carbon $startedAt,
                 RequestInterface $request,
                 array $options,
                 ?ResponseInterface $response,
                 ?\Throwable $error
-            ) use (&$capturedMethod, &$capturedUrl, &$capturedBody, &$capturedStatusCode): void {
+            ) use (&$capturedMethod, &$capturedUrl, &$capturedStatusCode): void {
                 $capturedMethod = $request->getMethod();
                 $capturedUrl = $request->getUri()->__toString();
-                $capturedBody = $options['json'] ?? null;
                 $capturedStatusCode = $response?->getStatusCode();
             },
         );
 
-        $this->assertSame('PUT', $capturedMethod);
-        $this->assertSame(
-            '/inApps/v1/messaging/default/com.example.subscription.monthly/en-US',
-            $capturedUrl
-        );
-        $this->assertSame(['messageIdentifier' => 'msg_01'], $capturedBody);
+        $this->assertSame('DELETE', $capturedMethod);
+        $this->assertSame('/inApps/v1/messaging/realtime/url', $capturedUrl);
         $this->assertSame(200, $capturedStatusCode);
     }
 }

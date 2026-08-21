@@ -4,17 +4,20 @@ namespace AppStoreLibrary\Tests\Unit\AppStoreServerApi;
 
 use AppStoreLibrary\Clients\FakeClient;
 use AppStoreLibrary\Enums\ServerNotifications\Environment;
+use AppStoreLibrary\Responses\ServerApi\RetentionMessagingRealtimeUrlResponse;
 use AppStoreLibrary\Sender;
 use Carbon\Carbon;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-final class ConfigureDefaultRetentionMessageTest extends TestCase
+final class GetRetentionMessagingRealtimeUrlTest extends TestCase
 {
-    public function testSendsExpectedRequest(): void
+    public function testSendsExpectedRequestAndParsesResponse(): void
     {
-        FakeClient::$responseBody = '';
+        FakeClient::$responseBody = json_encode([
+            'realtimeURL' => 'https://example.com/retention-messaging',
+        ]);
 
         $api = new Sender(
             FakeClient::class,
@@ -29,33 +32,23 @@ final class ConfigureDefaultRetentionMessageTest extends TestCase
 
         $capturedMethod = null;
         $capturedUrl = null;
-        $capturedBody = null;
-        $capturedStatusCode = null;
 
-        $api->configureDefaultRetentionMessage(
-            productId: 'com.example.subscription.monthly',
-            locale: 'en-US',
-            messageIdentifier: 'msg_01',
+        $result = $api->getRetentionMessagingRealtimeUrl(
             afterRequest: function (
                 Carbon $startedAt,
                 RequestInterface $request,
                 array $options,
                 ?ResponseInterface $response,
                 ?\Throwable $error
-            ) use (&$capturedMethod, &$capturedUrl, &$capturedBody, &$capturedStatusCode): void {
+            ) use (&$capturedMethod, &$capturedUrl): void {
                 $capturedMethod = $request->getMethod();
                 $capturedUrl = $request->getUri()->__toString();
-                $capturedBody = $options['json'] ?? null;
-                $capturedStatusCode = $response?->getStatusCode();
             },
         );
 
-        $this->assertSame('PUT', $capturedMethod);
-        $this->assertSame(
-            '/inApps/v1/messaging/default/com.example.subscription.monthly/en-US',
-            $capturedUrl
-        );
-        $this->assertSame(['messageIdentifier' => 'msg_01'], $capturedBody);
-        $this->assertSame(200, $capturedStatusCode);
+        $this->assertSame('GET', $capturedMethod);
+        $this->assertSame('/inApps/v1/messaging/realtime/url', $capturedUrl);
+        $this->assertInstanceOf(RetentionMessagingRealtimeUrlResponse::class, $result);
+        $this->assertSame('https://example.com/retention-messaging', $result->getRealtimeUrl());
     }
 }

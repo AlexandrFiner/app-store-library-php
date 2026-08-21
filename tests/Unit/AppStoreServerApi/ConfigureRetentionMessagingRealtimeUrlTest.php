@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-final class ConfigureDefaultRetentionMessageTest extends TestCase
+final class ConfigureRetentionMessagingRealtimeUrlTest extends TestCase
 {
     public function testSendsExpectedRequest(): void
     {
@@ -32,10 +32,8 @@ final class ConfigureDefaultRetentionMessageTest extends TestCase
         $capturedBody = null;
         $capturedStatusCode = null;
 
-        $api->configureDefaultRetentionMessage(
-            productId: 'com.example.subscription.monthly',
-            locale: 'en-US',
-            messageIdentifier: 'msg_01',
+        $api->configureRetentionMessagingRealtimeUrl(
+            realtimeURL: 'https://example.com/retention-messaging',
             afterRequest: function (
                 Carbon $startedAt,
                 RequestInterface $request,
@@ -51,11 +49,8 @@ final class ConfigureDefaultRetentionMessageTest extends TestCase
         );
 
         $this->assertSame('PUT', $capturedMethod);
-        $this->assertSame(
-            '/inApps/v1/messaging/default/com.example.subscription.monthly/en-US',
-            $capturedUrl
-        );
-        $this->assertSame(['messageIdentifier' => 'msg_01'], $capturedBody);
+        $this->assertSame('/inApps/v1/messaging/realtime/url', $capturedUrl);
+        $this->assertSame(['realtimeURL' => 'https://example.com/retention-messaging'], $capturedBody);
         $this->assertSame(200, $capturedStatusCode);
     }
 }
