@@ -7,6 +7,7 @@ use AppStoreLibrary\AppStoreObjects\Property;
 use AppStoreLibrary\AppStoreObjects\Signable;
 use AppStoreLibrary\AppStoreObjects\HasSignable;
 use AppStoreLibrary\Enums\ServerNotifications\Environment;
+use AppStoreLibrary\Enums\ServerNotifications\ExpirationIntent;
 use AppStoreLibrary\Enums\ServerNotifications\OfferDiscountType;
 use AppStoreLibrary\Enums\ServerNotifications\OfferType;
 use Carbon\Carbon;
@@ -20,7 +21,7 @@ use Carbon\Carbon;
  * @property null|string $currency
  * @property null|array<int> $eligibleWinBackOfferIds
  * @property null|string|Environment $environment
- * @property null|int $expirationIntent
+ * @property null|int|ExpirationIntent $expirationIntent
  * @property null|int|Carbon $gracePeriodExpiresDate
  * @property null|bool $isInBillingRetryPeriod
  * @property null|string|OfferDiscountType $offerDiscountType
@@ -46,7 +47,7 @@ class JWSRenewalInfoDecodedPayload extends BaseAppStoreObject implements Signabl
             'currency' => new Property(type: 'string'),
             'eligibleWinBackOfferIds' => new Property(type: 'array', arrayItemType: 'int'),
             'environment' => new Property(type: Environment::class),
-            'expirationIntent' => new Property(type: 'int'),
+            'expirationIntent' => new Property(type: ExpirationIntent::class),
             'gracePeriodExpiresDate' => new Property(type: Carbon::class),
             'isInBillingRetryPeriod' => new Property(type: 'bool'),
             'offerDiscountType' => new Property(type: OfferDiscountType::class),

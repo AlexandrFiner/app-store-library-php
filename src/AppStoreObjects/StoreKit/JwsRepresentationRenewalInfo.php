@@ -7,6 +7,7 @@ use AppStoreLibrary\AppStoreObjects\ServerNotifications\JWSRenewalInfoDecodedPay
 use AppStoreLibrary\AppStoreObjects\Signable;
 use AppStoreLibrary\AppStoreObjects\HasSignable;
 use AppStoreLibrary\Enums\ServerNotifications\Environment;
+use AppStoreLibrary\Enums\ServerNotifications\ExpirationIntent;
 use AppStoreLibrary\Enums\ServerNotifications\OfferDiscountType;
 use AppStoreLibrary\Enums\ServerNotifications\OfferType;
 use Carbon\Carbon;
@@ -20,7 +21,7 @@ use Carbon\Carbon;
  * @property null|string $currency
  * @property null|array<int> $eligibleWinBackOfferIds
  * @property null|string|Environment $environment
- * @property null|int $expirationIntent
+ * @property null|int|ExpirationIntent $expirationIntent
  * @property null|int|Carbon $gracePeriodExpiresDate
  * @property null|bool $isInBillingRetryPeriod
  * @property null|string|OfferDiscountType $offerDiscountType
