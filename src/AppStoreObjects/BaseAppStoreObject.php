@@ -71,6 +71,19 @@ abstract class BaseAppStoreObject
     }
 
     /**
+     * Property value as received, before casting. For example, an enum code unknown
+     * to the library, which get() returns as null.
+     * @throws \Exception
+     */
+    public function getRawValue(string $key): mixed
+    {
+        if (!$this->isPropertyExists($key)) {
+            throw new \Exception("Undefined property $key");
+        }
+        return $this->properties[$key]->getRaw();
+    }
+
+    /**
      * @throws \Exception
      */
     public function get($key): mixed

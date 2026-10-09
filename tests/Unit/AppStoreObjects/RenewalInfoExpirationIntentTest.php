@@ -38,6 +38,33 @@ final class RenewalInfoExpirationIntentTest extends TestCase
         $renewalInfo = $class::fromArray(['expirationIntent' => 99]);
 
         $this->assertNull($renewalInfo->expirationIntent);
+        $this->assertSame(99, $renewalInfo->getRawValue('expirationIntent'));
+    }
+
+    /**
+     * @param class-string<JWSRenewalInfoDecodedPayload> $class
+     */
+    #[DataProvider('renewalInfoClassProvider')]
+    public function testRawValueOfKnownValue(string $class): void
+    {
+        $renewalInfo = $class::fromArray(['expirationIntent' => 2]);
+
+        $this->assertSame(2, $renewalInfo->getRawValue('expirationIntent'));
+    }
+
+    /**
+     * @param class-string<JWSRenewalInfoDecodedPayload> $class
+     */
+    #[DataProvider('renewalInfoClassProvider')]
+    public function testRawValueOfMissingValueIsNull(string $class): void
+    {
+        $this->assertNull($class::fromArray([])->getRawValue('expirationIntent'));
+    }
+
+    public function testRawValueOfUndefinedPropertyThrows(): void
+    {
+        $this->expectException(\Exception::class);
+        JWSRenewalInfoDecodedPayload::fromArray([])->getRawValue('jopa');
     }
 
     /**
